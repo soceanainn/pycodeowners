@@ -14,7 +14,7 @@ def match_github_email_owner(s: str) -> Owner | None:
     if match is None:
         return None
 
-    return Owner(value=s, parsed_value=match.group(1), owner_type=GithubOwnerType.EMAIL)
+    return Owner(value=s, parsed_value=match.group(0), owner_type=GithubOwnerType.EMAIL)
 
 
 def match_github_team_owner(s: str) -> Owner | None:

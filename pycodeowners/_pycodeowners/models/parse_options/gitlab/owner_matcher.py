@@ -14,7 +14,7 @@ def match_gitlab_email_owner(s: str) -> Owner | None:
     if match is None:
         return None
 
-    return Owner(value=s, parsed_value=match.group(1), owner_type=GitlabOwnerType.EMAIL)
+    return Owner(value=s, parsed_value=match.group(0), owner_type=GitlabOwnerType.EMAIL)
 
 
 def match_gitlab_nested_group_owner(s: str) -> Owner | None:

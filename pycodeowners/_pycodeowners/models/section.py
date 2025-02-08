@@ -7,7 +7,7 @@ from pycodeowners._pycodeowners.models.rule import Rule
 @dataclass
 class Section:
     line_number: int
-    name: str = field(init=False)
+    name: str
     require_approval: bool = True
     number_of_required_approvals: int | None = None
     default_owners: list[Owner] = field(default_factory=list)

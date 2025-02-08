@@ -20,6 +20,14 @@ class Pattern:
             self.regex = RegexPatternBuilder.build(pattern)
             self.left_anchored_literal = False
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Pattern):
+            return False
+        return self.pattern == other.pattern
+
+    def __hash__(self) -> int:
+        return hash(self.pattern)
+
     def match(self, test_path: Path) -> bool:
         path_str = str(test_path)
 

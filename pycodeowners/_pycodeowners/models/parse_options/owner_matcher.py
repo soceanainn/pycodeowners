@@ -6,7 +6,7 @@ from pycodeowners._pycodeowners.models.owner import Owner
 
 
 emailRegexp = re.compile("^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,6}$")
-groupRegexp = re.compile("^@([a-zA-Z0-9-]+/[a-zA-Z0-9_-]+)$")
+groupRegexp = re.compile("^@([a-zA-Z0-9-]+(/[a-zA-Z0-9_-]+)+)$")
 usernameRegexp = re.compile("^@([a-zA-Z0-9-_]+)$")
 
 
