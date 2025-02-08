@@ -1,4 +1,4 @@
-from pycodeowners._pycodeowners.models.file_type import FileType
+from pycodeowners import CodeownerFileParser
 from pycodeowners._pycodeowners.models.owner import (
     Owner,
     GithubOwnerType,
@@ -9,16 +9,13 @@ from pycodeowners._pycodeowners.models.owner import (
 from pycodeowners._pycodeowners.models.pattern import Pattern
 from pycodeowners._pycodeowners.models.rule import Rule
 from pycodeowners._pycodeowners.models.section import Section
-from pycodeowners._pycodeowners.services.codeowner_file_loader import (
-    CodeownerFileLoader,
-)
 
 
-class TestLoad:
-    def test_loads_github_style_files(self) -> None:
-        ruleset = CodeownerFileLoader.load(
-            ("tests/codeowners_examples/github", FileType.Github)
-        )
+class TestParse:
+    def test_parses_github_style_files(self) -> None:
+        with open("tests/codeowners_examples/github") as f:
+            ruleset = CodeownerFileParser().parse(f)
+
         rules = ruleset.rules
         sections = ruleset.sections
 
@@ -186,10 +183,10 @@ class TestLoad:
             ],
         )
 
-    def test_loads_gitlab_style_files(self) -> None:
-        ruleset = CodeownerFileLoader.load(
-            ("tests/codeowners_examples/gitlab", FileType.Gitlab)
-        )
+    def test_parses_gitlab_style_files(self) -> None:
+        with open("tests/codeowners_examples/gitlab") as f:
+            ruleset = CodeownerFileParser().parse(f)
+
         rules = ruleset.rules
         sections = ruleset.sections
 
@@ -436,10 +433,9 @@ class TestLoad:
             ],
         )
 
-    def test_loads_bitbucket_style_files(self) -> None:
-        ruleset = CodeownerFileLoader.load(
-            ("tests/codeowners_examples/bitbucket", FileType.BitBucket)
-        )
+    def test_parses_bitbucket_style_files(self) -> None:
+        with open("tests/codeowners_examples/bitbucket") as f:
+            ruleset = CodeownerFileParser().parse(f)
         rules = ruleset.rules
         sections = ruleset.sections
 
