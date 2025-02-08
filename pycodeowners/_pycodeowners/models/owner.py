@@ -44,4 +44,4 @@ class Owner:
 @dataclass
 class BitbucketOwner(Owner):
     # Bitbucket has an additional selection strategy that may be applied
-    selection_strategy: str | None
+    selection_strategy: str | None = None

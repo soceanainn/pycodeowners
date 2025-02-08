@@ -15,11 +15,9 @@ from pycodeowners._pycodeowners.models.section import Section
 
 
 class CodeownerFileParser:
-    def __init__(self, options: ParseOptions | None = None) -> None:
+    def __init__(self, options: ParseOptions = GithubParseOptions()) -> None:
         """To override the default owner and accepted character matchers, pass options parameter"""
-
-        if options is None:
-            self.options = GithubParseOptions
+        self.options = options
 
     def parse(
         self,
@@ -30,7 +28,7 @@ class CodeownerFileParser:
         ruleset = Ruleset()
         current_section: Section | None = None
 
-        for line_num, line in enumerate(file):
+        for line_num, line in enumerate(file, start=1):
             line = line.strip()
 
             # Ignore empty lines or lines only containing comments
@@ -58,9 +56,9 @@ class CodeownerFileParser:
     def _parse_gitlab_section_heading(
         self, section_str: str, line_num: int
     ) -> Section | None:
-        s = Section(line_number=line_num)
+        require_approval = True
         if section_str.startswith("^"):
-            s.require_approval = False
+            require_approval = False
             section_str = section_str[2:]
         else:
             section_str = section_str[1:]
@@ -80,6 +78,7 @@ class CodeownerFileParser:
             last_seen_char + 2 :
         ].strip()  # +2 to skip termination char ']'
 
+        number_of_required_approvals: str | None = None
         if remaining_str.startswith("["):
             number_of_required_approvals, last_seen_char = self.parse_token(
                 remaining_str,
@@ -87,17 +86,21 @@ class CodeownerFileParser:
                 character_matcher=self.options.character_matcher.is_valid_owner_character,
                 termination_character="]",
             )
-            if number_of_required_approvals:
-                s.number_of_required_approvals = int(number_of_required_approvals)
             remaining_str = remaining_str[
                 last_seen_char + 2 :
             ].strip()  # +2 to skip termination char ']'
 
         owners, comment = self._parse_owners(remaining_str, line_num)
-        s.default_owners = owners
-        s.comment = comment
-
-        return s
+        return Section(
+            line_number=line_num,
+            name=section_name,
+            require_approval=require_approval,
+            number_of_required_approvals=int(number_of_required_approvals)
+            if number_of_required_approvals
+            else None,
+            default_owners=owners,
+            comment=comment,
+        )
 
     def _parse_owners(
         self, remaining_str: str, line_num: int
@@ -121,8 +124,6 @@ class CodeownerFileParser:
 
     def _parse_rule(self, rule_str: str, line_num: int) -> Rule:
         """parse_line parses a single line of a CODEOWNERS file, returning a Rule struct"""
-        r = Rule(line_number=line_num)
-
         pattern_str, last_seen_char = self.parse_token(
             rule_str,
             line_num,
@@ -131,15 +132,17 @@ class CodeownerFileParser:
 
         if len(pattern_str) == 0:
             raise ValueError(f"Unexpected end of rule on line #{line_num}")
-        r.pattern = Pattern(pattern_str)
 
         remaining_str = rule_str[last_seen_char + 1 :].strip()
 
         owners, comment = self._parse_owners(remaining_str, line_num)
-        r.owners = owners
-        r.comment = comment
 
-        return r
+        return Rule(
+            line_number=line_num,
+            pattern=Pattern(pattern_str),
+            owners=owners,
+            comment=comment,
+        )
 
     def parse_token(
         self,
