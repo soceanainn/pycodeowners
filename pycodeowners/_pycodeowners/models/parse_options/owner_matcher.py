@@ -2,6 +2,7 @@ import re
 from abc import ABC
 from typing import Callable, TypeVar, Generic
 
+from pycodeowners._pycodeowners.models.errors import InvalidOwnerError
 from pycodeowners._pycodeowners.models.owner import Owner
 
 
@@ -23,4 +24,4 @@ class OwnerMatcher(Generic[OwnerT], ABC):
             o = owner_matcher(s)
             if o is not None:
                 return o
-        raise ValueError("Invalid owner format: " + s)
+        raise InvalidOwnerError("Invalid owner format: " + s)
