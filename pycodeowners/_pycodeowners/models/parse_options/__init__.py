@@ -1,5 +1,4 @@
 from abc import ABC
-from dataclasses import dataclass
 
 from pycodeowners._pycodeowners.models.parse_options.bitbucket.character_matcher import (
     BitBucketCharacterMatcher,
@@ -28,15 +27,15 @@ class ParseOptions(ABC):
 
 
 class GithubParseOptions(ParseOptions):
-    character_matcher = CharacterMatcher
-    owner_matchers = GithubOwnerMatcher
+    character_matcher = CharacterMatcher()
+    owner_matchers = GithubOwnerMatcher()
 
 
 class GitlabParseOptions(ParseOptions):
-    character_matcher = GitlabCharacterMatcher
-    owner_matchers = GitlabOwnerMatcher
+    character_matcher = GitlabCharacterMatcher()
+    owner_matchers = GitlabOwnerMatcher()
 
 
 class BitBucketParseOptions(ParseOptions):
-    character_matcher = BitBucketCharacterMatcher
-    owner_matchers = BitbucketOwnerMatcher
+    character_matcher = BitBucketCharacterMatcher()
+    owner_matchers = BitbucketOwnerMatcher()

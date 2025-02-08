@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from pycodeowners._pycodeowners.models.file_type import FileType
 from pycodeowners._pycodeowners.models.owner import (
     Owner,
@@ -19,7 +17,7 @@ from pycodeowners._pycodeowners.services.codeowner_file_loader import (
 class TestLoad:
     def test_loads_github_style_files(self) -> None:
         ruleset = CodeownerFileLoader.load(
-            (Path("tests/codeowners_examples/github"), FileType.Github)
+            ("tests/codeowners_examples/github", FileType.Github)
         )
         rules = ruleset.rules
         sections = ruleset.sections

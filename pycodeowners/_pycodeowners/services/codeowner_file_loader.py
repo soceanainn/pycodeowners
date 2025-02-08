@@ -16,16 +16,15 @@ class CodeownerFileLoader:
     @classmethod
     def load(
         cls,
-        path_and_type: tuple[Path, FileType] | None = None,
+        path_and_type: tuple[str | Path, FileType] | None = None,
         file_parser: CodeownerFileParser | None = None,
     ) -> Ruleset:
         """loads and parses a CODEOWNERS file at the path specified.
         Checks standard locations for CODEOWNERS file if no path provided."""
-
-        if path_and_type is None:
-            path, codeowner_type = cls._find_file_at_standard_location()
-        else:
+        if path_and_type is not None:
             path, codeowner_type = path_and_type
+        else:
+            path, codeowner_type = cls._find_file_at_standard_location()
 
         if file_parser is None:
             match codeowner_type:
