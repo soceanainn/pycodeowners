@@ -63,7 +63,7 @@ class CodeownerFileParser:
         else:
             section_str = section_str[1:]
 
-        section_name, last_seen_char = self.parse_token(
+        section_name, last_seen_char = self._parse_token(
             section_str,
             line_num,
             character_matcher=self.options.character_matcher.is_valid_owner_character,
@@ -80,7 +80,7 @@ class CodeownerFileParser:
 
         number_of_required_approvals: str | None = None
         if remaining_str.startswith("["):
-            number_of_required_approvals, last_seen_char = self.parse_token(
+            number_of_required_approvals, last_seen_char = self._parse_token(
                 remaining_str,
                 line_num,
                 character_matcher=self.options.character_matcher.is_valid_owner_character,
@@ -112,7 +112,7 @@ class CodeownerFileParser:
                 return owners, remaining_str
 
             # Read owners
-            owner, last_seen_char = self.parse_token(
+            owner, last_seen_char = self._parse_token(
                 remaining_str,
                 line_num,
                 character_matcher=self.options.character_matcher.is_valid_owner_character,
@@ -124,7 +124,7 @@ class CodeownerFileParser:
 
     def _parse_rule(self, rule_str: str, line_num: int) -> Rule:
         """parse_line parses a single line of a CODEOWNERS file, returning a Rule struct"""
-        pattern_str, last_seen_char = self.parse_token(
+        pattern_str, last_seen_char = self._parse_token(
             rule_str,
             line_num,
             character_matcher=self.options.character_matcher.is_valid_pattern_character,
@@ -144,8 +144,9 @@ class CodeownerFileParser:
             comment=comment,
         )
 
-    def parse_token(
-        self,
+    @classmethod
+    def _parse_token(
+        cls,
         line: str,
         line_num: int,
         character_matcher: CharacterMatcherFunc,
