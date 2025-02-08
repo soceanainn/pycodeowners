@@ -1,9 +1,14 @@
 from typing import TextIO
 
+from pycodeowners._pycodeowners.models.errors import (
+    CodeownerSyntaxError,
+    InvalidOwnerError,
+)
 from pycodeowners._pycodeowners.models.parse_options.character_matcher import (
     CharacterMatcherFunc,
 )
 from pycodeowners._pycodeowners.models.owner import Owner
+from pycodeowners._pycodeowners.models.parsing_context import ParsingContext
 from pycodeowners._pycodeowners.models.ruleset import Ruleset
 from pycodeowners._pycodeowners.models.parse_options import (
     ParseOptions,
@@ -17,7 +22,8 @@ from pycodeowners._pycodeowners.models.section import Section
 class CodeownerFileParser:
     def __init__(self, options: ParseOptions = GithubParseOptions()) -> None:
         """To override the default owner and accepted character matchers, pass options parameter"""
-        self.options = options
+        self.options: ParseOptions = options
+        self.parsing_context: ParsingContext | None = None
 
     def parse(
         self,
@@ -29,6 +35,8 @@ class CodeownerFileParser:
         current_section: Section | None = None
 
         for line_num, line in enumerate(file, start=1):
+            self.parsing_context = ParsingContext(file.name, line_num, line)
+
             line = line.strip()
 
             # Ignore empty lines or lines only containing comments
@@ -37,13 +45,13 @@ class CodeownerFileParser:
 
             # For Gitlab, try to parse a new section heading, and skip parsing line as rule if found
             if line.startswith("[") or line.startswith("^[") and "]" in line:
-                section = self._parse_gitlab_section_heading(line, line_num)
+                section = self._parse_gitlab_section_heading(line)
                 if section is not None:
                     current_section = ruleset.get_or_create_section(section)
                     continue
 
             # Try to parse line as rule
-            rule = self._parse_rule(line, line_num)
+            rule = self._parse_rule(line)
 
             # If in section, add rule to section, otherwise add to ruleset
             if current_section is not None:
@@ -53,9 +61,7 @@ class CodeownerFileParser:
 
         return ruleset
 
-    def _parse_gitlab_section_heading(
-        self, section_str: str, line_num: int
-    ) -> Section | None:
+    def _parse_gitlab_section_heading(self, section_str: str) -> Section | None:
         require_approval = True
         if section_str.startswith("^"):
             require_approval = False
@@ -65,7 +71,6 @@ class CodeownerFileParser:
 
         section_name, last_seen_char = self._parse_token(
             section_str,
-            line_num,
             character_matcher=self.options.character_matcher.is_valid_owner_character,
             termination_character="]",
         )
@@ -82,7 +87,6 @@ class CodeownerFileParser:
         if remaining_str.startswith("["):
             number_of_required_approvals, last_seen_char = self._parse_token(
                 remaining_str,
-                line_num,
                 character_matcher=self.options.character_matcher.is_valid_owner_character,
                 termination_character="]",
             )
@@ -90,9 +94,9 @@ class CodeownerFileParser:
                 last_seen_char + 2 :
             ].strip()  # +2 to skip termination char ']'
 
-        owners, comment = self._parse_owners(remaining_str, line_num)
+        owners, comment = self._parse_owners(remaining_str)
         return Section(
-            line_number=line_num,
+            line_number=self.parsing_context.line,
             name=section_name,
             require_approval=require_approval,
             number_of_required_approvals=int(number_of_required_approvals)
@@ -102,9 +106,7 @@ class CodeownerFileParser:
             comment=comment,
         )
 
-    def _parse_owners(
-        self, remaining_str: str, line_num: int
-    ) -> tuple[list[Owner], str | None]:
+    def _parse_owners(self, remaining_str: str) -> tuple[list[Owner], str | None]:
         owners: list[Owner] = []
         while remaining_str:
             # Check for inline comments
@@ -114,41 +116,54 @@ class CodeownerFileParser:
             # Read owners
             owner, last_seen_char = self._parse_token(
                 remaining_str,
-                line_num,
                 character_matcher=self.options.character_matcher.is_valid_owner_character,
             )
             if owner:
-                owners.append(self.options.owner_matchers.match(owner))
+                try:
+                    owners.append(self.options.owner_matchers.match(owner))
+                except InvalidOwnerError:
+                    col = len(self.parsing_context.line_content) - len(remaining_str)
+                    raise CodeownerSyntaxError(
+                        f"Found invalid owner entry: '{owner}'",
+                        self.parsing_context,
+                        col,
+                    )
+
             remaining_str = remaining_str[last_seen_char + 1 :].strip()
         return owners, None
 
-    def _parse_rule(self, rule_str: str, line_num: int) -> Rule:
+    def _parse_rule(self, rule_str: str) -> Rule:
         """parse_line parses a single line of a CODEOWNERS file, returning a Rule struct"""
         pattern_str, last_seen_char = self._parse_token(
             rule_str,
-            line_num,
             character_matcher=self.options.character_matcher.is_valid_pattern_character,
         )
 
         if len(pattern_str) == 0:
-            raise ValueError(f"Unexpected end of rule on line #{line_num}")
+            col = (
+                len(self.parsing_context.line_content)
+                - len(rule_str)
+                + last_seen_char
+                - 1
+            )
+            raise CodeownerSyntaxError(
+                "Found unexpected end of rule", self.parsing_context, col
+            )
 
         remaining_str = rule_str[last_seen_char + 1 :].strip()
 
-        owners, comment = self._parse_owners(remaining_str, line_num)
+        owners, comment = self._parse_owners(remaining_str)
 
         return Rule(
-            line_number=line_num,
+            line_number=self.parsing_context.line,
             pattern=Pattern(pattern_str),
             owners=owners,
             comment=comment,
         )
 
-    @classmethod
     def _parse_token(
-        cls,
+        self,
         line: str,
-        line_num: int,
         character_matcher: CharacterMatcherFunc,
         termination_character: str | None = None,
     ) -> tuple[str, int]:
@@ -173,7 +188,8 @@ class CodeownerFileParser:
                 buffered_string += char
                 escaped_character = False
             else:
-                raise ValueError(
-                    f"Received invalid character '{char}' on line #{line_num}"
+                col = len(self.parsing_context.line_content) - len(line) + idx - 1
+                raise CodeownerSyntaxError(
+                    f"Found invalid character '{char}'", self.parsing_context, col
                 )
         return buffered_string, len(line) - 1

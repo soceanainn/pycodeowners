@@ -2,36 +2,19 @@ import subprocess
 from pathlib import Path
 
 from pycodeowners._pycodeowners.models.file_type import FileType
-from pycodeowners._pycodeowners.models.parse_options import (
-    GitlabParseOptions,
-    BitbucketParseOptions,
-    GithubParseOptions,
-    ParseOptions,
-)
 
 
 class CodeownerFileFinder:
     @classmethod
     def find(
         cls,
-    ) -> tuple[Path, ParseOptions]:
+    ) -> tuple[Path, FileType]:
         """Checks standard locations for CODEOWNERS file.
         Returns an inferred parse option based on the location of the CODEOWNERS file."""
 
         path, file_type = cls._find_file_at_standard_location()
-        parse_options: ParseOptions
-        match file_type:
-            case FileType.Github:
-                parse_options = GithubParseOptions()
-            case FileType.Gitlab:
-                parse_options = GitlabParseOptions()
-            case FileType.Bitbucket:
-                parse_options = BitbucketParseOptions()
-            case _:
-                raise ValueError(
-                    f"Unexpected value for codeowner file type: '{file_type}'"
-                )
-        return path, parse_options
+
+        return path, file_type
 
     @classmethod
     def _find_file_at_standard_location(cls) -> tuple[Path, FileType]:
