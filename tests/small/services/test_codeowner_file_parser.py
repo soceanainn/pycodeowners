@@ -1,4 +1,4 @@
-from pycodeowners import CodeownerFileParser
+from pycodeowners import CodeownerFileParser, GitlabParseOptions, BitBucketParseOptions
 from pycodeowners._pycodeowners.models.owner import (
     Owner,
     GithubOwnerType,
@@ -185,7 +185,7 @@ class TestParse:
 
     def test_parses_gitlab_style_files(self) -> None:
         with open("tests/codeowners_examples/gitlab") as f:
-            ruleset = CodeownerFileParser().parse(f)
+            ruleset = CodeownerFileParser(GitlabParseOptions()).parse(f)
 
         rules = ruleset.rules
         sections = ruleset.sections
@@ -435,7 +435,7 @@ class TestParse:
 
     def test_parses_bitbucket_style_files(self) -> None:
         with open("tests/codeowners_examples/bitbucket") as f:
-            ruleset = CodeownerFileParser().parse(f)
+            ruleset = CodeownerFileParser(BitBucketParseOptions()).parse(f)
         rules = ruleset.rules
         sections = ruleset.sections
 
