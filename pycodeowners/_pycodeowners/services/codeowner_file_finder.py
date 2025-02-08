@@ -1,12 +1,12 @@
 import subprocess
 from pathlib import Path
 
-from pycodeowners import ParseOptions
 from pycodeowners._pycodeowners.models.file_type import FileType
 from pycodeowners._pycodeowners.models.parse_options import (
     GitlabParseOptions,
     BitBucketParseOptions,
     GithubParseOptions,
+    ParseOptions,
 )
 
 
