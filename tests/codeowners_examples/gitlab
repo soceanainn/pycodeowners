@@ -1,0 +1,49 @@
+# This is an example of a CODEOWNERS file.
+# Lines that start with `#` are ignored.
+
+# Specify a default Code Owner by using a wildcard:
+* @default-codeowner
+
+# Specify multiple Code Owners by using a tab or space:
+* @multiple @code @owners
+
+# Rules defined later in the file take precedence over earlier rules.
+# For example, for all files with a filename ending in `.rb`:
+*.rb @ruby-owner
+
+# Files with a `#` can still be accessed by escaping the pound sign:
+\#file_with_pound.rb @owner-file-with-pound
+
+# You can use both usernames or email addresses to match users:
+LICENSE @legal janedoe@gitlab.com
+
+# Use group names to match groups, and nested groups:
+README @group @group/with-nested/subgroup
+
+# Specify Code Owners for directories:
+/docs/ @all-docs
+/docs/* @root-docs
+/docs/**/*.md @root-docs
+
+# Match directories nested anywhere in the repository:
+lib/ @lib-owner
+
+# Match only a directory in the root of the repository:
+/config/ @config-owner
+
+# If the path contains spaces, escape them like this:
+path\ with\ spaces/ @space-owner
+
+# Code Owners sections:
+[Documentation]
+ee/docs    @docs
+docs       @docs
+
+[Development] @dev-team
+*
+README.md @docs-team
+data-models/ @data-science-team
+
+# This section is combined with the previously defined [Documentation] section:
+[DOCUMENTATION]
+README.md  @docs

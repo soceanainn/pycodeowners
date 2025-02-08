@@ -1,0 +1,60 @@
+# The CODEOWNERS file shares the same pattern matching syntax for file/directory
+# names with .gitignore
+
+# This is a comment.
+
+# Each non-commented line consists of a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in
+# the repository. Unless a later match takes precedence.
+#
+# global-owner1@example.com and global-owner2@example.com will be requested for
+# review when someone opens a pull request.
+#
+*            global-owner1@example.com global-owner2@example.com
+
+# Order is important; the last matching pattern takes the most
+# precedence. When someone opens a pull request that only
+# modifies JS files, only js-owner@example.com and not the global
+# owner(s) will be requested for a review.
+#
+*.js        js-owner@example.com  # This is an inline comment.
+
+# This means that more specific file-level ownership rules
+# often drift towards the bottom of the file. If this specific
+# file is changed, Steve Driftexpert will be counted as an owner. Rather
+# than js-owner as defined above.
+#
+/src/pullrequests/drift.js       stevedriftexpert@example.com
+
+# Groups can be added as owners, they must be prefixed by
+# the workspace name. When a group match occurs, a single
+# random user from that group is chosen by default.
+#
+*.js        @workspace-slug/frontenders
+
+# If something other than the default behavior for group
+# matches is wanted, you can explicitly define the
+# matching strategy.
+
+# The available matching strategies are:
+#    random - select N random user(s) from this group
+#    all - select all members of this group
+#    least_busy - select N users(s) sorted by the number of open reviews
+
+# Examples:
+#
+# Select a configurable number of users at random
+#
+*.py        @workspace-slug/py-owners:random    # same as random(1)
+*.py        @workspace-slug/py-owners:random(3) # 3 random users
+#
+# Sort reviewers by # of active PR reviews DESC and select
+# a configurable number of users in that order.
+#
+*.py        @workspace-slug/py-owners:least_busy    # Same as least_busy(1)
+*.py        @workspace-slug/py-owners:least_busy(3) # least-busy 3 people
+#
+# Always select the entire group
+#
+*.py        @workspace-slug/py-owners:all
