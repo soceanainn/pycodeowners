@@ -16,7 +16,7 @@ from pycodeowners._pycodeowners.models.parse_options import (
     GitlabParseOptions as _GitlabParseOptions,
 )
 from pycodeowners._pycodeowners.models.parse_options import (
-    BitBucketParseOptions as _BitBucketParseOptions,
+    BitbucketParseOptions as _BitbucketParseOptions,
 )
 from pycodeowners._pycodeowners.models.rule import Rule as _Rule
 from pycodeowners._pycodeowners.models.ruleset import Ruleset as _Ruleset
@@ -30,7 +30,7 @@ from pycodeowners._pycodeowners.services.git_file_discoverer import (
     GitFileDiscoverer as _GitFileDiscoverer,
 )
 
-BitBucketParseOptions = _BitBucketParseOptions
+BitbucketParseOptions = _BitbucketParseOptions
 CharacterMatcher = _CharacterMatcher
 CodeownerFileFinder = _CodeownerFileFinder
 CodeownerFileParser = _CodeownerFileParser
@@ -45,7 +45,7 @@ Rule = _Rule
 Ruleset = _Ruleset
 
 __all__ = [
-    "BitBucketParseOptions",
+    "BitbucketParseOptions",
     "CharacterMatcher",
     "CodeownerFileFinder",
     "CodeownerFileParser",

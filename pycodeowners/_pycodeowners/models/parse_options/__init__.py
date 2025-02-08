@@ -1,7 +1,7 @@
 from abc import ABC
 
 from pycodeowners._pycodeowners.models.parse_options.bitbucket.character_matcher import (
-    BitBucketCharacterMatcher,
+    BitbucketCharacterMatcher,
 )
 from pycodeowners._pycodeowners.models.parse_options.bitbucket.owner_matcher import (
     BitbucketOwnerMatcher,
@@ -36,6 +36,6 @@ class GitlabParseOptions(ParseOptions):
     owner_matchers = GitlabOwnerMatcher()
 
 
-class BitBucketParseOptions(ParseOptions):
-    character_matcher = BitBucketCharacterMatcher()
+class BitbucketParseOptions(ParseOptions):
+    character_matcher = BitbucketCharacterMatcher()
     owner_matchers = BitbucketOwnerMatcher()

@@ -4,7 +4,7 @@ from pathlib import Path
 from pycodeowners._pycodeowners.models.file_type import FileType
 from pycodeowners._pycodeowners.models.parse_options import (
     GitlabParseOptions,
-    BitBucketParseOptions,
+    BitbucketParseOptions,
     GithubParseOptions,
     ParseOptions,
 )
@@ -25,8 +25,8 @@ class CodeownerFileFinder:
                 parse_options = GithubParseOptions()
             case FileType.Gitlab:
                 parse_options = GitlabParseOptions()
-            case FileType.BitBucket:
-                parse_options = BitBucketParseOptions()
+            case FileType.Bitbucket:
+                parse_options = BitbucketParseOptions()
             case _:
                 raise ValueError(
                     f"Unexpected value for codeowner file type: '{file_type}'"
@@ -49,7 +49,7 @@ class CodeownerFileFinder:
             ("CODEOWNERS", FileType.Github),
             ("docs/CODEOWNERS", FileType.Github),
             (".gitlab/CODEOWNERS", FileType.Gitlab),
-            (".bitbucket/CODEOWNERS", FileType.BitBucket),
+            (".bitbucket/CODEOWNERS", FileType.Bitbucket),
         }:
             full_path = path_prefix / path
 
