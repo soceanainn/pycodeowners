@@ -5,7 +5,7 @@ from pathlib import Path
 class GitFileDiscoverer:
     @classmethod
     def discover(cls, input_paths: list[str] | None = None) -> list[Path]:
-        default_args = ["git", "ls-files", "--others", "--exclude-standard"]
+        default_args = ["git", "ls-files", "--others", "--cached", "--exclude-standard"]
         if input_paths:
             default_args.extend(input_paths)
         else:
